@@ -61,4 +61,11 @@
   body {
     @apply bg-background text-foreground;
   }
+  
+  /* Ensure proper border radius for buttons and components */
+  button, 
+  .btn, 
+  .rounded-md {
+    border-radius: var(--radius);
+  }
 }

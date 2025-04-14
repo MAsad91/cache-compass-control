@@ -114,6 +114,7 @@ const columns: ColumnDef<CacheEntry>[] = [
           variant="ghost" 
           size="sm"
           onClick={() => ApiService.clearCacheEntry(row.original.key)}
+          className="rounded-md"
         >
           Clear
         </Button>
@@ -154,7 +155,7 @@ export function CacheEntriesTable({ data, pageCount, pagination, setPagination }
   });
 
   return (
-    <div className="rounded-md border bg-card">
+    <div className="rounded-md border bg-card w-full">
       <div className="flex items-center justify-between p-4">
         <Input
           placeholder="Filter cache entries..."
@@ -166,6 +167,7 @@ export function CacheEntriesTable({ data, pageCount, pagination, setPagination }
             variant="outline"
             size="sm"
             onClick={() => ApiService.clearAllCache()}
+            className="rounded-md"
           >
             Clear All Cache
           </Button>
@@ -216,8 +218,8 @@ export function CacheEntriesTable({ data, pageCount, pagination, setPagination }
       </Table>
       <div className="flex items-center justify-end space-x-2 p-4">
         <div className="flex-1 text-sm text-muted-foreground">
-          Showing {table.getState().pagination.pageIndex * table.getState().pagination.pageSize + 1}-
-          {Math.min((table.getState().pagination.pageIndex + 1) * table.getState().pagination.pageSize, data.length)} of{" "}
+          Showing {pagination.pageIndex * pagination.pageSize + 1}-
+          {Math.min((pagination.pageIndex + 1) * pagination.pageSize, data.length)} of{" "}
           {data.length} entries
         </div>
         <div className="flex items-center space-x-2">
@@ -227,6 +229,7 @@ export function CacheEntriesTable({ data, pageCount, pagination, setPagination }
             onClick={() => table.setPageIndex(0)}
             disabled={!table.getCanPreviousPage()}
             aria-label="First page"
+            className="rounded-md"
           >
             <ChevronsLeft className="h-4 w-4" />
           </Button>
@@ -236,6 +239,7 @@ export function CacheEntriesTable({ data, pageCount, pagination, setPagination }
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
             aria-label="Previous page"
+            className="rounded-md"
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
@@ -245,6 +249,7 @@ export function CacheEntriesTable({ data, pageCount, pagination, setPagination }
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
             aria-label="Next page"
+            className="rounded-md"
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
@@ -254,6 +259,7 @@ export function CacheEntriesTable({ data, pageCount, pagination, setPagination }
             onClick={() => table.setPageIndex(table.getPageCount() - 1)}
             disabled={!table.getCanNextPage()}
             aria-label="Last page"
+            className="rounded-md"
           >
             <ChevronsRight className="h-4 w-4" />
           </Button>
