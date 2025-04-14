@@ -65,23 +65,45 @@ const columns: ColumnDef<CacheEntry>[] = [
     accessorKey: "createdAt",
     header: "Created",
     cell: ({ row }) => {
-      const date = new Date(row.getValue<string>("createdAt"));
-      return formatDistanceToNow(date, { addSuffix: true });
+      try {
+        const dateValue = row.getValue<string>("createdAt");
+        // Check if the date is valid before formatting
+        if (!dateValue) return "Unknown";
+        
+        const date = new Date(dateValue);
+        // Check if date is valid (not Invalid Date)
+        if (isNaN(date.getTime())) return "Invalid date";
+        
+        return formatDistanceToNow(date, { addSuffix: true });
+      } catch (error) {
+        console.error("Error formatting date:", error);
+        return "Invalid date";
+      }
     },
   },
   {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-      const expiresAt = new Date(row.original.expiresAt);
-      const now = new Date();
-      const isExpired = expiresAt < now;
-      
-      return (
-        <Badge variant={isExpired ? "destructive" : "success"}>
-          {isExpired ? "Expired" : "Active"}
-        </Badge>
-      );
+      try {
+        const expiresAt = new Date(row.original.expiresAt);
+        const now = new Date();
+        // Check if date is valid before comparing
+        if (isNaN(expiresAt.getTime())) {
+          return <Badge variant="warning">Unknown</Badge>;
+        }
+        
+        const isExpired = expiresAt < now;
+        
+        return (
+          <Badge variant={isExpired ? "destructive" : "success"}>
+            {isExpired ? "Expired" : "Active"}
+          </Badge>
+        );
+      } catch (error) {
+        console.error("Error checking expiration:", error);
+        return <Badge variant="warning">Error</Badge>;
+      }
     },
   },
   {
