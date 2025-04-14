@@ -15,8 +15,8 @@ export function CacheHitRatioChart({ cacheStats }) {
 
   // Colors for light/dark mode
   const COLORS = isDarkMode 
-    ? ["hsl(var(--success))", "hsl(var(--error))"]
-    : ["hsl(var(--success))", "hsl(var(--error))"];
+    ? ["hsl(var(--success))", "hsl(var(--destructive))"]
+    : ["hsl(var(--success))", "hsl(var(--destructive))"];
 
   const LABEL_COLORS = isDarkMode
     ? "#FFFFFF"
