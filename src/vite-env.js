@@ -1,2 +1,2 @@
 
-// Empty file - type definitions are not needed in JavaScript
+// Empty file for type definitions (JavaScript version)
