@@ -9,7 +9,7 @@ import { AppLayout } from "@/components/layout/AppLayout";
 import Dashboard from "./pages/Dashboard";
 import CacheManagement from "./pages/CacheManagement";
 import ApiTesting from "./pages/ApiTesting";
-import Settings from "./pages/Settings";
+import Settings from "./pages/Settings.jsx";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
