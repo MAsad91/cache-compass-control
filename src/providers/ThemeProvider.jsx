@@ -126,11 +126,11 @@ export function ThemeProvider({
     isHighContrastMode,
     toggleHighContrastMode,
     isReducedMotion,
-    toggleReducedMotion
+    toggleReducedMotion,
   };
 
   return (
-    <ThemeProviderContext.Provider value={value} {...props}>
+    <ThemeProviderContext.Provider {...props} value={value}>
       {children}
     </ThemeProviderContext.Provider>
   );
@@ -138,9 +138,10 @@ export function ThemeProvider({
 
 export const useTheme = () => {
   const context = useContext(ThemeProviderContext);
-  
-  if (context === undefined)
+
+  if (context === undefined) {
     throw new Error("useTheme must be used within a ThemeProvider");
-  
+  }
+
   return context;
 };
