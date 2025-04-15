@@ -1,208 +1,111 @@
 
-import { toast } from "sonner";
+// Mock API service implementation
+// In a real application, this would integrate with an actual backend API
 
-// API Service Methods
-export const ApiService = {
-  // Dashboard API
-  getDashboardStats: async () => {
-    try {
-      await delay(500);
-      return generateMockDashboardStats();
-    } catch (error) {
-      console.error("Error fetching dashboard stats:", error);
-      toast.error("Failed to fetch dashboard statistics");
-      throw error;
-    }
-  },
-  
-  getCacheEntries: async (page = 1, limit = 10) => {
-    try {
-      await delay(500);
-      const entries = generateMockCacheEntries(100);
-      const startIndex = (page - 1) * limit;
-      const endIndex = startIndex + limit;
-      
-      return {
-        entries: entries.slice(startIndex, endIndex),
-        total: entries.length,
-      };
-    } catch (error) {
-      console.error("Error fetching cache entries:", error);
-      toast.error("Failed to fetch cache entries");
-      throw error;
-    }
-  },
-  
-  // Cache Management API
-  clearAllCache: async () => {
-    try {
-      await delay(800);
-      toast.success("Cache cleared successfully");
-    } catch (error) {
-      console.error("Error clearing cache:", error);
-      toast.error("Failed to clear cache");
-      throw error;
-    }
-  },
-  
-  clearCacheEntry: async (key) => {
-    try {
-      await delay(400);
-      toast.success(`Cache entry "${key}" cleared successfully`);
-    } catch (error) {
-      console.error(`Error clearing cache entry "${key}":`, error);
-      toast.error(`Failed to clear cache entry "${key}"`);
-      throw error;
-    }
-  },
-  
-  clearCacheByPattern: async (pattern) => {
-    try {
-      await delay(600);
-      toast.success(`Cache entries matching "${pattern}" cleared successfully`);
-    } catch (error) {
-      console.error(`Error clearing cache entries by pattern "${pattern}":`, error);
-      toast.error(`Failed to clear cache entries matching "${pattern}"`);
-      throw error;
-    }
-  },
-  
-  // API Testing Endpoints
-  testEndpoint: async (endpoint, invalidateCache) => {
-    try {
-      const startTime = performance.now();
-      
-      // Simulate random cache behavior
-      const isCached = invalidateCache ? false : Math.random() > 0.3;
-      
-      // Different response time based on cache status
-      await delay(generateRandomResponseTime(isCached));
-      
-      const endTime = performance.now();
-      const responseTime = Math.round(endTime - startTime);
-      
-      return {
-        data: { message: "Success", endpoint, timestamp: new Date().toISOString() },
-        responseTime,
-        cached: isCached,
-      };
-    } catch (error) {
-      console.error(`Error testing endpoint "${endpoint}":`, error);
-      toast.error(`Failed to test endpoint "${endpoint}"`);
-      throw error;
-    }
-  },
-};
-
-// Helper functions
+// Simulate network delay for API requests
 const delay = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
-const generateRandomResponseTime = (isCached) => {
-  // Cached responses are typically faster
-  if (isCached) {
-    return Math.floor(Math.random() * 50) + 5; // 5-55ms
-  } else {
-    return Math.floor(Math.random() * 300) + 100; // 100-400ms
-  }
-};
-
-// Mock data generators
-const generateMockCacheEntries = (count) => {
+// Mock cache data
+const generateMockCacheEntries = (count = 20) => {
   const entries = [];
-  const now = new Date();
+  const now = Date.now();
   
   for (let i = 0; i < count; i++) {
-    const ttl = Math.floor(Math.random() * 86400) + 60; // 1 minute to 24 hours
-    const createdAt = new Date(now.getTime() - Math.floor(Math.random() * 86400000));
+    const createdAt = new Date(now - Math.floor(Math.random() * 7 * 24 * 60 * 60 * 1000)); // Random date within last week
+    const ttl = Math.floor(Math.random() * 3600) + 300; // TTL between 5 minutes and 1 hour
     const expiresAt = new Date(createdAt.getTime() + ttl * 1000);
     
     entries.push({
-      id: `entry-${i}`,
-      key: `/api/data/${Math.floor(Math.random() * 100)}`,
-      ttl,
-      size: Math.floor(Math.random() * 10000) + 100,
-      createdAt: createdAt.toISOString(), // Ensure valid ISO string
-      expiresAt: expiresAt.toISOString(), // Ensure valid ISO string
-      hits: Math.floor(Math.random() * 1000),
+      key: `cache:${Math.random().toString(36).substring(2, 10)}:${i}`,
+      value: { data: `Sample data for entry ${i}` },
+      ttl: ttl,
+      hits: Math.floor(Math.random() * 100),
+      size: Math.floor(Math.random() * 10000) + 100, // Size in bytes
+      createdAt: createdAt.toISOString(),
+      expiresAt: expiresAt.toISOString(),
     });
   }
   
   return entries;
 };
 
-const generateMockCacheStats = () => {
-  const totalHits = Math.floor(Math.random() * 10000) + 5000;
-  const totalMisses = Math.floor(Math.random() * 2000) + 1000;
-  const total = totalHits + totalMisses;
-  
-  return {
-    totalEntries: Math.floor(Math.random() * 500) + 100,
-    hitRatio: parseFloat((totalHits / total).toFixed(2)),
-    missRatio: parseFloat((totalMisses / total).toFixed(2)),
-    totalHits,
-    totalMisses,
-    memoryUsage: Math.floor(Math.random() * 200) + 50,
-    memoryLimit: 512,
-    uptime: Math.floor(Math.random() * 604800) + 3600, // 1 hour to 1 week in seconds
-  };
+// Mock cache data
+const mockCacheData = {
+  entries: generateMockCacheEntries(20),
+  total: 72, // Total number of entries
+  stats: {
+    hitRatio: 0.78,
+    missRatio: 0.22,
+    memoryUsage: 45,
+    totalMemory: 100,
+  },
 };
 
-const generateMockResponseTimeData = (days) => {
-  const data = [];
-  const now = new Date();
-  
-  for (let i = 0; i < days; i++) {
-    const date = new Date(now);
-    date.setDate(date.getDate() - i);
+export const ApiService = {
+  // Get cache entries with pagination
+  getCacheEntries: async (page = 1, pageSize = 10) => {
+    await delay(300); // Simulate network delay
     
-    data.unshift({
-      timestamp: date.toISOString().split('T')[0],
-      cached: Math.floor(Math.random() * 50) + 10,
-      uncached: Math.floor(Math.random() * 300) + 100,
-    });
-  }
-  
-  return data;
-};
-
-const generateMockDashboardStats = () => {
-  const endpoints = [
-    "/api/data",
-    "/api/short-lived",
-    "/api/users",
-    "/api/products",
-    "/api/orders",
-  ];
-  
-  const hitsByEndpoint = endpoints.map(endpoint => ({
-    endpoint,
-    hits: Math.floor(Math.random() * 5000) + 1000,
-    misses: Math.floor(Math.random() * 1000) + 100,
-  }));
-  
-  const actions = ["GET", "POST", "PUT", "DELETE"];
-  const statuses = ["hit", "miss", "error"];
-  
-  const recentActivity = Array.from({ length: 20 }, (_, i) => {
-    const action = actions[Math.floor(Math.random() * actions.length)];
-    const endpoint = endpoints[Math.floor(Math.random() * endpoints.length)];
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
+    const startIndex = (page - 1) * pageSize;
+    const endIndex = startIndex + pageSize;
     
     return {
-      action,
-      endpoint,
-      timestamp: new Date(Date.now() - Math.floor(Math.random() * 3600000)).toISOString(),
-      duration: status === "hit" ? 
-        Math.floor(Math.random() * 50) + 5 : 
-        Math.floor(Math.random() * 300) + 100,
-      status,
+      entries: mockCacheData.entries.slice(startIndex, endIndex),
+      total: mockCacheData.total,
+      page,
+      pageSize,
+      totalPages: Math.ceil(mockCacheData.total / pageSize),
     };
-  }).sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  },
   
-  return {
-    cacheStats: generateMockCacheStats(),
-    responseTimes: generateMockResponseTimeData(7),
-    hitsByEndpoint,
-    recentActivity,
-  };
+  // Get cache statistics
+  getCacheStats: async () => {
+    await delay(200);
+    return mockCacheData.stats;
+  },
+  
+  // Clear all cache entries
+  clearAllCache: async () => {
+    await delay(500);
+    console.log('All cache entries cleared');
+    return { success: true, message: 'All cache entries cleared' };
+  },
+  
+  // Clear a specific cache entry
+  clearCacheEntry: async (key) => {
+    await delay(200);
+    console.log(`Cache entry cleared: ${key}`);
+    return { success: true, message: `Cache entry '${key}' cleared` };
+  },
+  
+  // Clear cache entries by pattern
+  clearCacheByPattern: async (pattern) => {
+    await delay(400);
+    console.log(`Cache entries matching pattern '${pattern}' cleared`);
+    return { success: true, message: `Cache entries matching '${pattern}' cleared` };
+  },
+  
+  // Test API endpoint
+  testEndpoint: async (url, method = 'GET', headers = {}, body = null, useCache = true) => {
+    await delay(useCache ? 100 : 800); // Faster response if cached
+    
+    return {
+      status: 200,
+      statusText: 'OK',
+      headers: {
+        'content-type': 'application/json',
+        'x-response-time': useCache ? '15ms' : '120ms',
+        'cache-control': 'max-age=3600',
+        'x-cache-status': useCache ? 'HIT' : 'MISS'
+      },
+      data: {
+        success: true,
+        message: 'This is a sample response',
+        timestamp: new Date().toISOString(),
+        cached: useCache
+      }
+    };
+  }
 };
+
+export default ApiService;
